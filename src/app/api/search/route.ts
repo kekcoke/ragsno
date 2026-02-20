@@ -56,8 +56,8 @@ export async function POST(req: Request) {
     // Return the generated answer
     return NextResponse.json(
     { 
-            answer: completion.choices[0].message.content,
-            sources: results 
+        answer: completion.choices[0].message.content,
+        sources: results 
     });
 
     } catch (error: any) {

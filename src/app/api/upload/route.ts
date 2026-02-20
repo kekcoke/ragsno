@@ -93,23 +93,23 @@ export async function POST(req: Request) {
             });
 
             if (storageError) {
-            const msg = storageError.message || 'Unknown storage error';
-            if (msg.includes('row-level security') || msg.includes('RLS')) {
+                const msg = storageError.message || 'Unknown storage error';
+                if (msg.includes('row-level security') || msg.includes('RLS')) {
+                    return NextResponse.json({ 
+                    success: false, 
+                    error: `Storage RLS error: ${msg}. Ensure SUPABASE_SERVICE_ROLE_KEY is set.` 
+                    }, { status: 500 });
+                }
                 return NextResponse.json({ 
-                success: false, 
-                error: `Storage RLS error: ${msg}. Ensure SUPABASE_SERVICE_ROLE_KEY is set.` 
+                    success: false, 
+                    error: `Failed to store file: ${msg}` 
                 }, { status: 500 });
-            }
-            return NextResponse.json({ 
-                success: false, 
-                error: `Failed to store file: ${msg}` 
-            }, { status: 500 });
         }
 
         // Get public URL for the file
         const { data: urlData } = supabaseStorage.storage
-        .from('documents')
-        .getPublicUrl(filePath);
+            .from('documents')
+            .getPublicUrl(filePath);
 
         // Extract text from file
         const text = await extractTextFromFile(file);
@@ -123,12 +123,12 @@ export async function POST(req: Request) {
         // Chunk size of 800 characters with 100-character overlap ensures
         // we don't lose context at chunk boundaries
         const textSplitter = new RecursiveCharacterTextSplitter({
-        chunkSize: 800,
-        chunkOverlap: 100,
+            chunkSize: 800,
+            chunkOverlap: 100,
         });
         const chunks = await textSplitter.splitText(text);
     
-            // Process each chunk: generate embedding and store in database
+        // Process each chunk: generate embedding and store in database
         for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
 
